@@ -44,33 +44,29 @@ app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
   let user_id = req.params._id;
 
   try {
-    user.findById(user_id, (err, data) => {
-      if (err) return console.error("Retrieving user details: " + err);
-      if (data) {
-        let newExercise = new user({
-          user_id: user_id,
+    let exerciseObj = {
+      description: req.body.description,
+      duration: req.body.duration,
+      date:
+        req.body.date == ""
+          ? new Date(Date.now()).toDateString()
+          : new Date(req.body.date).toDateString()
+    };
+    user.findByIdAndUpdate(
+      user_id,
+      { $push: { exercise: exerciseObj } },
+      async (err, data) => {
+        if (err) return console.error("Retrieving user details: " + err);
+        let response = {
+          _id: data._id,
           username: data.username,
-          description: req.body.description,
-          duration: req.body.duration,
-          date:
-            req.body.date == ""
-              ? Date.now()
-              : new Date(req.body.date).toDateString()
-        });
-
-        newExercise.save((err, exercise) => {
-          if (err) return console.error("Saving the exercise data: " + err);
-          // res.json({
-          //   _id: exercise.user_id,
-          //   username: data.username,
-          //   description: exercise.description,
-          //   duration: exercise.duration,
-          //   date: exercise.date
-          // });
-          res.json(exercise);
-        });
+          description: exerciseObj.description,
+          duration: exerciseObj.duration,
+          date: exerciseObj.date
+        };
+        res.json(response);
       }
-    });
+    );
   } catch (err) {
     console.log(err);
   }
