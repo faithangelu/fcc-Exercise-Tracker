@@ -59,11 +59,12 @@ app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
         if (err) return console.error("Retrieving user details: " + err);
         let response = {
           _id: data._id,
-          username: data.username,
-          description: exerciseObj.description,
-          duration: exerciseObj.duration,
-          date: exerciseObj.date
+          username: data.username
         };
+
+        response["description"] = exerciseObj.description;
+        response["duration"] = exerciseObj.duration;
+        response["date"] = exerciseObj.date;
         res.json(response);
       }
     );
