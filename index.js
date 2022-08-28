@@ -47,23 +47,27 @@ app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
     user.findById(user_id, (err, data) => {
       if (err) return console.error("Retrieving user details: " + err);
       if (data) {
-        let newExercise = new exercise({
+        let newExercise = new user({
           user_id: user_id,
           username: data.username,
           description: req.body.description,
           duration: req.body.duration,
-          date: req.body.date == "" ? Date.now() : req.body.date
+          date:
+            req.body.date == ""
+              ? Date.now()
+              : new Date(req.body.date).toDateString()
         });
 
         newExercise.save((err, exercise) => {
           if (err) return console.error("Saving the exercise data: " + err);
-          res.json({
-            username: data.username,
-            description: exercise.description,
-            duration: exercise.duration,
-            date: exercise.date,
-            _id: data.user_id
-          });
+          // res.json({
+          //   _id: exercise.user_id,
+          //   username: data.username,
+          //   description: exercise.description,
+          //   duration: exercise.duration,
+          //   date: exercise.date
+          // });
+          res.json(exercise);
         });
       }
     });
@@ -75,8 +79,10 @@ app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
 app.get("/api/users/:_id/logs", (req, res) => {
   let user_id = req.params._id;
 
-  exercise.findById({ _id: user_id }, (err, usernameDetails) => {
+  var userLog = exercise.find({ user_id: user_id });
+  userLog.count((err, usernameDetails) => {
     if (err) return console.error(err);
+    res.json(usernameDetails);
   });
 });
 
