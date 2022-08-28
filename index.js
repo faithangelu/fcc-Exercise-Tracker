@@ -65,7 +65,7 @@ app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
         response["description"] = exerciseObj.description;
         response["duration"] = exerciseObj.duration;
         response["date"] = exerciseObj.date;
-        res.json(response);
+        res.send(response);
       }
     );
   } catch (err) {
