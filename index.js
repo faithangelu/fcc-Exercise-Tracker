@@ -15,46 +15,58 @@ app.get("/", (req, res) => {
 });
 
 let urlencodeParser = bodyParser.urlencoded({ extended: true });
-app.post("/api/users", urlencodeParser, (req, res) => {
-  let username = req.body.username;
 
-  let userDetails = new user({
-    username: username
-  });
+app.post("/api/users", urlencodeParser, async (req, res) => {
+  let paramUsername = req.body.username;
 
   try {
-    userDetails.save((err, data) => {
-      if (err) return console.error(err);
-      res.json({ _id: data._id, username: data.username });
+    let newUserDetails = new user({
+      username: paramUsername
+    });
+
+    const userSaved = await newUserDetails.save();
+    res.json({
+      _id: userSaved._id,
+      username: userSaved.username
     });
   } catch (err) {
     console.log(err);
   }
 });
 
-app.get("/api/users", (req, res) => {
-  user.find({}, function (err, users) {
-    res.json(users);
-  });
+app.get("/api/users", async (req, res) => {
+  const users = await user.find();
+
+  res.json(users);
 });
 
-app.post("/api/users/:_id/exercises", urlencodeParser, (req, res) => {
+app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
   let user_id = req.params._id;
 
   try {
-    exercise.findByIdAndUpdate(
-      { _id: user_id },
-      {
-        description: req.body.description,
-        duration: req.body.duration,
-        date: req.body.date == "" ? Date.now() : req.body.date
-      },
-      function (err, exerciseDetails) {
-        if (err) return console.error(err);
+    user.findById(user_id, (err, data) => {
+      if (err) return console.error("Retrieving user details: " + err);
+      if (data) {
+        let newExercise = new exercise({
+          user_id: user_id,
+          username: data.username,
+          description: req.body.description,
+          duration: req.body.duration,
+          date: req.body.date == "" ? Date.now() : req.body.date
+        });
 
-        res.json(exerciseDetails);
+        newExercise.save((err, exercise) => {
+          if (err) return console.error("Saving the exercise data: " + err);
+          res.json({
+            username: data.username,
+            description: exercise.description,
+            duration: exercise.duration,
+            date: exercise.date,
+            _id: data.user_id
+          });
+        });
       }
-    );
+    });
   } catch (err) {
     console.log(err);
   }
