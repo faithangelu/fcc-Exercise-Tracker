@@ -8,6 +8,8 @@ require("dotenv").config();
 const user = require("./model/User.js");
 const exercise = require("./model/Exercise.js");
 
+const port = process.env.PORT || 3000;
+
 app.use(cors());
 app.use(express.static("public"));
 app.get("/", (req, res) => {
@@ -48,7 +50,7 @@ app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
       description: req.body.description,
       duration: req.body.duration,
       date:
-        req.body.date == ""
+        req.body.date === ""
           ? new Date(Date.now()).toDateString()
           : new Date(req.body.date).toDateString()
     };
@@ -65,7 +67,7 @@ app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
         response["description"] = exerciseObj.description;
         response["duration"] = exerciseObj.duration;
         response["date"] = exerciseObj.date;
-        res.send(response);
+        res.json(response);
       }
     );
   } catch (err) {
@@ -73,14 +75,33 @@ app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
   }
 });
 
+app.get("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
+  try {
+    const userExercise = user.findById(req.params._id);
+    res.json({
+      username: userExercise.username,
+      description: userExercise.description,
+      duration: userExercise.duration,
+      data: userExercise.date,
+      _id: userExercise._id
+    });
+  } catch (err) {}
+});
+
 app.get("/api/users/:_id/logs", (req, res) => {
   let user_id = req.params._id;
 
-  var userLog = exercise.find({ user_id: user_id });
-  userLog.count((err, usernameDetails) => {
+  user.find({ _id: user_id }, async (err, data) => {
     if (err) return console.error(err);
-    res.json(usernameDetails);
+    res.json({
+      username: data[0].username,
+      count: data[0].exercise.length,
+      _id: data[0]._id,
+      log: data[0].exercise
+    });
   });
+  // userLog.count((err, usernameDetails) => {
+  // });
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
