@@ -49,10 +49,7 @@ app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
     let exerciseObj = {
       description: req.body.description,
       duration: req.body.duration,
-      date:
-        req.body.date === ""
-          ? new Date(Date.now()).toDateString()
-          : new Date(req.body.date).toDateString()
+      date: req.body.date === "" ? Date.now() : req.body.date
     };
     user.findByIdAndUpdate(
       user_id,
@@ -65,8 +62,8 @@ app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
         };
 
         response["description"] = exerciseObj.description;
-        response["duration"] = exerciseObj.duration;
-        response["date"] = exerciseObj.date;
+        response["duration"] = parseInt(exerciseObj.duration);
+        response["date"] = new Date(exerciseObj.date).toDateString();
         res.json(response);
       }
     );
