@@ -90,29 +90,20 @@ app.get("/api/users/:_id/logs", (req, res) => {
 
   user.find({ _id: user_id }, async (err, data) => {
     if (err) return console.error(err);
+
+    let logs = data[0].exercise.map(item => ({
+      description: item.description,
+      duration: parseInt(item.duration),
+      date: new Date(item.date).toDateString()
+    }));
+
     res.json({
+      _id: data[0]._id,
       username: data[0].username,
       count: data[0].exercise.length,
-      _id: data[0]._id,
-      log: data[0].exercise
+      log: logs
     });
-
-    // let response = {
-    //   username: data[0].username,
-    //   count: data[0].exercise.length,
-    //   _id: data[0]._id
-    // };
-
-    // response["logs"] = data[0].exercise.map(item => ({
-    //   description: item.description,
-    //   duration: parseInt(item.duration),
-    //   date: new Date(item.date).toDateString()
-    // }));
-
-    // res.json(response);
   });
-  // userLog.count((err, usernameDetails) => {
-  // });
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
