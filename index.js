@@ -90,12 +90,28 @@ app.get("/api/users/:_id/logs", (req, res) => {
 
   user.find({ _id: user_id }, async (err, data) => {
     if (err) return console.error(err);
-    res.json({
+    // res.json({
+    //   username: data[0].username,
+    //   count: data[0].exercise.length,
+    //   _id: data[0]._id,
+    //   log: [
+    //     dsecription:
+    //   ]
+    // });
+
+    let response = {
       username: data[0].username,
       count: data[0].exercise.length,
-      _id: data[0]._id,
-      log: data[0].exercise
-    });
+      _id: data[0]._id
+    };
+
+    response["logs"] = data[0].exercise.map(item => ({
+      description: item.description,
+      duration: parseInt(item.duration),
+      date: new Date(item.date).toDateString()
+    }));
+
+    res.json(response);
   });
   // userLog.count((err, usernameDetails) => {
   // });
