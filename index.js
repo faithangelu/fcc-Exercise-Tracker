@@ -95,19 +95,11 @@ app.get("/api/users/:_id/logs", async (req, res) => {
     let userLogs = await user.findById(user_id);
 
     let exerciselogs = userLogs.exercise.map(item => {
-      if (req.query) {
-        return {
-          description: item.description,
-          duration: parseInt(item.duration),
-          date: new Date(item.date).toDateString()
-        };
-      } else {
-        return {
-          description: item.description,
-          duration: parseInt(item.duration),
-          date: new Date(item.date).toDateString()
-        };
-      }
+      return {
+        description: item.description,
+        duration: parseInt(item.duration),
+        date: new Date(item.date).toDateString()
+      };
     });
 
     res.json({
