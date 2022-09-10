@@ -6,7 +6,6 @@ require("dotenv").config();
 
 // Models
 const user = require("./model/User.js");
-const exercise = require("./model/Exercise.js");
 
 const port = process.env.PORT || 3000;
 
@@ -37,7 +36,7 @@ app.post("/api/users", urlencodeParser, async (req, res) => {
 });
 
 app.get("/api/users", async (req, res) => {
-  const users = await user.find();
+  const users = await user.find({}, "_id username");
 
   res.json(users);
 });
@@ -49,24 +48,24 @@ app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
     let exerciseObj = {
       description: req.body.description,
       duration: req.body.duration,
-      date: req.body.date === "" ? Date.now() : req.body.date
+      date:
+        req.body.date === ""
+          ? new Date().toDateString()
+          : new Date(req.body.date).toDateString()
     };
-    user.findByIdAndUpdate(
-      user_id,
-      { $push: { exercise: exerciseObj } },
-      async (err, data) => {
-        if (err) return console.error("Retrieving user details: " + err);
-        let response = {
-          _id: data._id,
-          username: data.username
-        };
 
-        response["description"] = exerciseObj.description;
-        response["duration"] = parseInt(exerciseObj.duration);
-        response["date"] = new Date(exerciseObj.date).toDateString();
-        res.json(response);
-      }
-    );
+    const exerciseDetails = await user.findByIdAndUpdate(user_id, {
+      $push: { exercise: exerciseObj }
+    });
+    let response = {
+      _id: exerciseDetails._id,
+      username: exerciseDetails.username
+    };
+
+    response["description"] = exerciseObj.description;
+    response["duration"] = parseInt(exerciseObj.duration);
+    response["date"] = new Date(exerciseObj.date).toDateString();
+    res.json(response);
   } catch (err) {
     console.log(err);
   }
@@ -74,36 +73,50 @@ app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
 
 app.get("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
   try {
-    const userExercise = user.findById(req.params._id);
+    const userExercise = await user.findById(req.params._id);
+
     res.json({
       username: userExercise.username,
       description: userExercise.description,
       duration: userExercise.duration,
-      data: userExercise.date,
+      data: new Date(userExercise.date).toDateString(),
       _id: userExercise._id
     });
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
 });
 
-app.get("/api/users/:_id/logs", (req, res) => {
+app.get("/api/users/:_id/logs", async (req, res) => {
   let user_id = req.params._id;
+  let { from, to } = req.query;
 
-  user.find({ _id: user_id }, async (err, data) => {
-    if (err) return console.error(err);
+  try {
+    let exerciselogs;
+    let userLogs = await user.findById(user_id);
 
-    let logs = data[0].exercise.map(item => ({
-      description: item.description,
-      duration: parseInt(item.duration),
-      date: new Date(item.date).toDateString()
-    }));
+    if (req.query) {
+      exerciselogs = userLogs.exercise.map(item => {
+        if (
+          new Date(item.date) >= new Date(from) &&
+          new Date(item.date) <= new Date(to)
+        ) {
+          return item;
+        }
+      });
+
+      console.log(exerciselogs);
+    }
 
     res.json({
-      _id: data[0]._id,
-      username: data[0].username,
-      count: data[0].exercise.length,
-      log: logs
+      _id: userLogs._id,
+      username: userLogs.username,
+      count: userLogs.exercise.length,
+      log: exerciselogs
     });
-  });
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
