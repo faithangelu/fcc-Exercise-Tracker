@@ -92,21 +92,23 @@ app.get("/api/users/:_id/logs", async (req, res) => {
   let { from, to } = req.query;
 
   try {
-    let exerciselogs;
     let userLogs = await user.findById(user_id);
 
-    if (req.query) {
-      exerciselogs = userLogs.exercise.map(item => {
-        if (
-          new Date(item.date) >= new Date(from) &&
-          new Date(item.date) <= new Date(to)
-        ) {
-          return item;
-        }
-      });
-
-      console.log(exerciselogs);
-    }
+    let exerciselogs = userLogs.exercise.map(item => {
+      if (req.query) {
+        return {
+          description: item.description,
+          duration: parseInt(item.duration),
+          date: new Date(item.date).toDateString()
+        };
+      } else {
+        return {
+          description: item.description,
+          duration: parseInt(item.duration),
+          date: new Date(item.date).toDateString()
+        };
+      }
+    });
 
     res.json({
       _id: userLogs._id,
