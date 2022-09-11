@@ -93,30 +93,43 @@ app.get("/api/users/:_id/logs", async (req, res) => {
 
   try {
     let userLogs = await user.findById(user_id);
+    let exerciselogs;
+    if (from && to && limit) {
+      let filteredDates = userLogs.exercise.filter(item => {
+        let convertedFrom = new Date(from).toDateString();
+        let convertedTo = new Date(to).toDateString();
 
-    let exerciselogs = userLogs.exercise.map(item => {
-      //   console.log(typeof new Date(item.date).toDateString());
-      //   if (from && to) {
-      //     Date.parse(item.date) >= Date.parse(from) &&
-      //       Date.parse(item.date) <= Date.parse(to);
-      //   }
-      //   //check if index is smaller then LIMIT
-      //   if (req.query.limit) {
-      //     return item < limit;
-      //   }
+        return (
+          Date.parse(item.date) >= Date.parse(convertedFrom) &&
+          Date.parse(item.date) <= Date.parse(convertedTo)
+        );
+      });
 
-      return {
-        description: item.description,
-        duration: parseInt(item.duration),
-        date: new Date(item.date).toDateString()
-      };
-    });
+      exerciselogs = filteredDates
+        .map(data => {
+          return {
+            description: data.description,
+            duration: parseInt(data.duration),
+            date: new Date(data.date).toDateString()
+          };
+        })
+        // .sort()
+        .slice(0, limit);
+    } else {
+      exerciselogs = userLogs.exercise.map(item => {
+        return {
+          description: item.description,
+          duration: parseInt(item.duration),
+          date: new Date(item.date).toDateString()
+        };
+      });
+    }
 
     res.json({
       _id: userLogs._id,
       username: userLogs.username,
       count: userLogs.exercise.length,
-      log: exerciselogs
+      logs: exerciselogs
     });
   } catch (err) {
     console.log(err);
