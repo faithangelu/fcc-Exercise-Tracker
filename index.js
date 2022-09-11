@@ -115,11 +115,6 @@ app.get("/api/users/:_id/logs", async (req, res) => {
     // } else {
     // }
 
-    let response = {
-      _id: userLogs._id,
-      username: userLogs.username,
-      count: userLogs.exercise.length
-    };
     let exerciselogs = userLogs.exercise.map(item => {
       return {
         description: item.description,
@@ -128,8 +123,12 @@ app.get("/api/users/:_id/logs", async (req, res) => {
       };
     });
 
-    response["logs"] = exerciselogs;
-    res.json(response);
+    res.json({
+      _id: userLogs._id,
+      username: userLogs.username,
+      count: userLogs.exercise.length,
+      log: exerciselogs
+    });
   } catch (err) {
     console.log(err);
   }
