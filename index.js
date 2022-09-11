@@ -83,28 +83,38 @@ app.get("/api/users/:_id/logs", async (req, res) => {
     const exerciseDetail = await exercise.find({
       username: userDetail.username
     });
+    let logs;
+    console.log(exerciseDetail.length);
 
-    let logDetails = {
-      _id: userDetail._id,
-      username: userDetail.username
-    };
+    // if (from && to) {
+    logs = exerciseDetail.map(d => {
+      // if (
+      //   Date.parse(d.date) >= Date.parse(from) &&
+      //   Date.parse(d.date) <= Date.parse(to)
+      // ) {
+      return {
+        description: d.description,
+        duration: d.duration,
+        date: new Date(d.date).toDateString()
+      };
+      // }
+    });
 
-    if (from && to) {
-      logs = exerciseDetail.filter(
-        d =>
-          Date.parse(d.date) >= Date.parse(from) &&
-          Date.parse(d.date) <= Date.parse(to)
-      );
-
-      logDetails["description"] = logs.description;
-      logDetails["duration"] = logs.duration;
-      logDetails["date"] = logs.date;
-    }
+    // logDetails["description"] = logs.description;
+    // logDetails["duration"] = logs.duration;
+    // logDetails["date"] = logs.date;
+    // }
 
     if (limit) {
       data = exerciseDetail.filter((d, i) => i < limit);
     }
 
+    let logDetails = {
+      _id: userDetail._id,
+      username: userDetail.username,
+      count: exerciseDetail.length,
+      logs: logs
+    };
     res.json(logDetails);
   } catch (err) {
     console.log(err);
