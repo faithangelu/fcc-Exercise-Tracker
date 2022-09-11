@@ -114,20 +114,22 @@ app.get("/api/users/:_id/logs", async (req, res) => {
     //     .slice(0, limit);
     // } else {
     // }
+
+    let response = {
+      _id: userLogs._id,
+      username: userLogs.username,
+      count: userLogs.exercise.length
+    };
     let exerciselogs = userLogs.exercise.map(item => {
       return {
-        description: item.description,
+        description: JSON.stringify(item.description),
         duration: parseInt(item.duration),
         date: new Date(item.date).toDateString()
       };
     });
 
-    res.json({
-      _id: userLogs._id,
-      username: userLogs.username,
-      count: userLogs.exercise.length,
-      logs: exerciselogs
-    });
+    response["logs"] = exerciselogs;
+    res.json(response);
   } catch (err) {
     console.log(err);
   }
