@@ -91,7 +91,7 @@ app.get("/api/users/:_id/logs", async (req, res) => {
   try {
     let userLogs = await user.findById(user_id);
     let exerciselogs;
-    if (from && to && limit) {
+    if (from && to) {
       let filteredDates = userLogs.exercise.filter(item => {
         let convertedFrom = new Date(from).toDateString();
         let convertedTo = new Date(to).toDateString();
@@ -112,15 +112,27 @@ app.get("/api/users/:_id/logs", async (req, res) => {
         })
         // .sort()
         .slice(0, limit);
-    } else {
-      exerciselogs = userLogs.exercise.map(item => {
-        return {
-          description: item.description,
-          duration: parseInt(item.duration),
-          date: new Date(item.date).toDateString()
-        };
-      });
     }
+
+    if (limit) {
+      exerciselogs = userLogs.exercise
+        .map(item => {
+          return {
+            description: item.description,
+            duration: parseInt(item.duration),
+            date: new Date(item.date).toDateString()
+          };
+        })
+        .slice(0, limit);
+    }
+
+    exerciselogs = userLogs.exercise.map(item => {
+      return {
+        description: item.description,
+        duration: parseInt(item.duration),
+        date: new Date(item.date).toDateString()
+      };
+    });
 
     res.json({
       _id: userLogs._id,
