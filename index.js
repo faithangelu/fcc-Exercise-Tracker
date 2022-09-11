@@ -48,10 +48,7 @@ app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
     let exerciseObj = {
       description: req.body.description,
       duration: req.body.duration,
-      date:
-        req.body.date === ""
-          ? new Date().toDateString()
-          : new Date(req.body.date).toDateString()
+      date: req.body.date === "" ? new Date() : new Date(req.body.date)
     };
 
     const exerciseDetails = await user.findByIdAndUpdate(user_id, {
