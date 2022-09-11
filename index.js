@@ -91,7 +91,9 @@ app.get("/api/users/:_id/logs", async (req, res) => {
   try {
     let userLogs = await user.findById(user_id);
     let exerciselogs;
+    console.log(from, to);
     if (from && to) {
+      console.log("im here");
       let filteredDates = userLogs.exercise.filter(item => {
         let convertedFrom = new Date(from).toDateString();
         let convertedTo = new Date(to).toDateString();
@@ -101,20 +103,30 @@ app.get("/api/users/:_id/logs", async (req, res) => {
           Date.parse(item.date) <= Date.parse(convertedTo)
         );
       });
+      console.log(filteredDates);
+      exerciselogs = filteredDates.map(data => {
+        return {
+          description: data.description,
+          duration: parseInt(data.duration),
+          date: new Date(data.date).toDateString()
+        };
+      });
 
-      exerciselogs = filteredDates
-        .map(data => {
-          return {
-            description: data.description,
-            duration: parseInt(data.duration),
-            date: new Date(data.date).toDateString()
-          };
-        })
-        // .sort()
-        .slice(0, limit);
-    }
-
-    if (limit) {
+      if (limit) {
+        exerciselogs = userLogs.exercise
+          .map(item => {
+            return {
+              description: item.description,
+              duration: parseInt(item.duration),
+              date: new Date(item.date).toDateString()
+            };
+          })
+          .slice(0, limit);
+      }
+      console.log(exerciselogs, "tests");
+    } else if (limit) {
+      console.log(limit);
+      console.log("i was loaded");
       exerciselogs = userLogs.exercise
         .map(item => {
           return {
@@ -124,15 +136,19 @@ app.get("/api/users/:_id/logs", async (req, res) => {
           };
         })
         .slice(0, limit);
+    } else {
+      console.log("else was loaded");
+
+      exerciselogs = userLogs.exercise.map(item => {
+        return {
+          description: item.description,
+          duration: parseInt(item.duration),
+          date: new Date(item.date).toDateString()
+        };
+      });
     }
 
-    exerciselogs = userLogs.exercise.map(item => {
-      return {
-        description: item.description,
-        duration: parseInt(item.duration),
-        date: new Date(item.date).toDateString()
-      };
-    });
+    console.log(exerciselogs);
 
     res.json({
       _id: userLogs._id,
