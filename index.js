@@ -122,7 +122,7 @@ app.get("/api/users/:_id/logs", async (req, res) => {
     };
     let exerciselogs = userLogs.exercise.map(item => {
       return {
-        description: JSON.stringify(item.description),
+        description: item.description,
         duration: parseInt(item.duration),
         date: new Date(item.date).toDateString()
       };
