@@ -2,7 +2,7 @@ const mongoose = require("./db.js");
 
 const userSchema = new mongoose.Schema({
   username: String,
-  count: Number
+  count: Number,
   exercise: Array
 });
 
