@@ -43,12 +43,13 @@ app.get("/api/users", async (req, res) => {
 
 app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
   let user_id = req.params._id;
+  let { description, duration, date } = req.body;
 
   try {
     let exerciseObj = {
-      description: req.body.description,
-      duration: req.body.duration,
-      date: req.body.date === "" ? new Date() : new Date(req.body.date)
+      description: description,
+      duration: duration,
+      date: date === "" ? new Date() : new Date(req.body.date)
     };
 
     const exerciseDetails = await user.findByIdAndUpdate(user_id, {
@@ -91,9 +92,8 @@ app.get("/api/users/:_id/logs", async (req, res) => {
   try {
     let userLogs = await user.findById(user_id);
     let exerciselogs;
-    console.log(from, to);
+
     if (from && to) {
-      console.log("im here");
       let filteredDates = userLogs.exercise.filter(item => {
         let convertedFrom = new Date(from).toDateString();
         let convertedTo = new Date(to).toDateString();
@@ -103,7 +103,7 @@ app.get("/api/users/:_id/logs", async (req, res) => {
           Date.parse(item.date) <= Date.parse(convertedTo)
         );
       });
-      console.log(filteredDates);
+
       exerciselogs = filteredDates.map(data => {
         return {
           description: data.description,
@@ -123,7 +123,6 @@ app.get("/api/users/:_id/logs", async (req, res) => {
           })
           .slice(0, limit);
       }
-      console.log(exerciselogs, "tests");
     } else if (limit) {
       console.log(limit);
       console.log("i was loaded");
@@ -137,8 +136,6 @@ app.get("/api/users/:_id/logs", async (req, res) => {
         })
         .slice(0, limit);
     } else {
-      console.log("else was loaded");
-
       exerciselogs = userLogs.exercise.map(item => {
         return {
           description: item.description,
@@ -147,8 +144,6 @@ app.get("/api/users/:_id/logs", async (req, res) => {
         };
       });
     }
-
-    console.log(exerciselogs);
 
     res.json({
       _id: userLogs._id,
