@@ -2,8 +2,13 @@ const mongoose = require("./db.js");
 
 const userSchema = new mongoose.Schema({
   username: String,
-  count: Number,
-  exercise: Array
+  exercise: [
+    {
+      description: String,
+      duration: Number,
+      date: String
+    }
+  ]
 });
 
 module.exports = mongoose.model("User", userSchema);
