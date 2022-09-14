@@ -45,8 +45,8 @@ app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
   let user_id = req.params._id;
   let dateValue =
     req.body.date === "" || req.body.date === undefined
-      ? new Date()
-      : new Date(req.body.date);
+      ? new Date().toDateString()
+      : new Date(req.body.date).toDateString();
 
   try {
     let exerciseObj = {
@@ -65,7 +65,7 @@ app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
 
     response["description"] = exerciseObj.description;
     response["duration"] = parseInt(exerciseObj.duration);
-    response["date"] = new Date(exerciseObj.date);
+    response["date"] = new Date(exerciseObj.date).toDateString();
     res.json(response);
   } catch (err) {
     console.log(err);
