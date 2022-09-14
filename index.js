@@ -43,15 +43,16 @@ app.get("/api/users", async (req, res) => {
 
 app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
   let user_id = req.params._id;
+  let dateValue =
+    req.body.date === "" || req.body.date === undefined
+      ? new Date()
+      : new Date(req.body.date);
 
   try {
     let exerciseObj = {
       description: req.body.description,
       duration: req.body.duration,
-      date:
-        req.body.date === "" || req.body.date === undefined
-          ? new Date()
-          : new Date(req.body.date)
+      date: dateValue
     };
 
     const exerciseDetails = await user.findByIdAndUpdate(user_id, {
