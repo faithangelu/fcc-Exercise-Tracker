@@ -48,7 +48,10 @@ app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
     let exerciseObj = {
       description: req.body.description,
       duration: req.body.duration,
-      date: req.body.date === "" ? new Date() : new Date(req.body.date)
+      date:
+        req.body.date === "" || req.body.date === undefined
+          ? new Date()
+          : new Date(req.body.date)
     };
 
     const exerciseDetails = await user.findByIdAndUpdate(user_id, {
@@ -61,7 +64,7 @@ app.post("/api/users/:_id/exercises", urlencodeParser, async (req, res) => {
 
     response["description"] = exerciseObj.description;
     response["duration"] = parseInt(exerciseObj.duration);
-    response["date"] = new Date(exerciseObj.date).toDateString();
+    response["date"] = new Date(exerciseObj.date);
     res.json(response);
   } catch (err) {
     console.log(err);
@@ -125,8 +128,6 @@ app.get("/api/users/:_id/logs", async (req, res) => {
       }
       console.log(exerciselogs, "tests");
     } else if (limit) {
-      console.log(limit);
-      console.log("i was loaded");
       exerciselogs = userLogs.exercise
         .map(item => {
           return {
